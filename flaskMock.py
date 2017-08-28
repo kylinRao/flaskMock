@@ -1,13 +1,13 @@
 #coding=utf-8
 from time import sleep
-
+from responseConfig import  *
 from flask import Flask
 from flask import jsonify
 from flask import request
-from configFile import *
+from appConfig import *
 import os
 
-
+import appConfig
 from werkzeug.routing import BaseConverter
 class RegexConverter(BaseConverter):
     def __init__(self, map, *args):
@@ -15,6 +15,7 @@ class RegexConverter(BaseConverter):
         self.regex = args[0]
 configDic = {}
 app = Flask(__name__)
+app.config.from_object("appConfig.DevelopmentConfig")
 app.url_map.converters['regex'] = RegexConverter
 
 
@@ -47,25 +48,41 @@ def postService(apiUri):
                     return res
     return  res
 
+# def resolveConfig():
+#     parPath = os.path.dirname(__file__)
+#     configFilePath = os.path.join(parPath,"responseConfig.py")
+#     with open(configFilePath,"r") as f:
+#         for line in f:
+#             twoParts = line.rstrip().split("===")
+#             if ":" in twoParts[0]:
+#                 (uri,condition) = twoParts[0].split(":")
+#             else:
+#                 (uri, condition) = twoParts[0],"noCondition"
+#             if configDic.has_key(uri):
+#                 pass
+#             else:
+#                 configDic[uri] = {}
+#             configDic[uri][condition] = twoParts[1]
+#     return configDic
+##解析特定返回匹配配置的函数
 def resolveConfig():
-    parPath = os.path.dirname(__file__)
-    configFilePath = os.path.join(parPath,"simpleConfig.py")
-    with open(configFilePath,"r") as f:
-        for line in f:
-            twoParts = line.rstrip().split("===")
-            if ":" in twoParts[0]:
-                (uri,condition) = twoParts[0].split(":")
-            else:
-                (uri, condition) = twoParts[0],"noCondition"
-            if configDic.has_key(uri):
-                pass
-            else:
-                configDic[uri] = {}
-            configDic[uri][condition] = twoParts[1]
+    for line in MATCHSTR.lstrip().rstrip().split(os.linesep):
+        twoParts = line.rstrip().split("===")
+        if ":" in twoParts[0]:
+            (uri,condition) = twoParts[0].split(":")
+        else:
+            (uri, condition) = twoParts[0],"noCondition"
+        if configDic.has_key(uri):
+            pass
+        else:
+            configDic[uri] = {}
+        configDic[uri][condition] = twoParts[1]
     return configDic
+
 
 
 if __name__ == '__main__':
     resolveConfig()
-    print configDic
-    app.run(host="0.0.0.0",debug=True)
+    app.run(host='0.0.0.0')
+
+
