@@ -1,11 +1,13 @@
 class Config(object):
+    import os
+    parpath = os.path.dirname(__file__)
     DEBUG = False
     TESTING = False
     DATABASE_URI = ':memory:'
     USERNAME = "admin"
     PASSWORD = "default"
     SECRET_KEY = "alsdjfljaldlfalsdjlfjaldsklfjlajsdlf"
-    DATABASE = "/Users/user1/PycharmProjects/flaskMock/mock.db"
+    DATABASE = os.path.join(parpath,"mock.db")
     static_url_path = ''
 
 class ProductionConfig(Config):
