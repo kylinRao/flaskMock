@@ -1,3 +1,4 @@
+#coding:utf-8
 import os
 import sqlite3
 from flask import Flask, request, session, g, redirect, url_for, abort, \
@@ -45,7 +46,13 @@ def add_entry():
     g.db.commit()
     flash('New entry was successfully posted')
     return redirect(url_for('show_entries'))
-
+@app.route('/addcomment', methods=['POST'])
+def add_comment():
+    print request.form
+    g.db.execute('insert into comments ( "comment" ) values ( "{postcomment}" )'.format(postcomment=request.form['commentAdd']))
+    g.db.commit()
+    flash('New comment added!!')
+    return redirect(url_for('pdf'))
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error = None
@@ -90,10 +97,25 @@ def showPdf():
 @app.route('/showPdf2',methods=['GET', 'POST'])
 def showPdf2():
     return render_template('showPdf2.html')
-@app.route('/showPdf3',methods=['GET', 'POST'])
-def showPdf3():
-    return render_template('showPdf3.html')
+@app.route('/pdf',methods=['GET', 'POST'])
+def pdf():
+    cur = g.db.execute('select comment,id from comments  ORDER by id DESC ')
+    entries = [dict(comment=row[0],id =row[1]) for row in cur.fetchall()]
+    print entries
+    return render_template('pdf.html',entries=entries)
+
+@app.route('/commentDelete/<post_id>/',methods=['GET', 'POST'])
+def commentDelete(post_id):
+    print post_id
+    g.db.execute('delete from comments where id= {post_id}'.format(post_id = post_id))
+    g.db.commit()
+    flash('delete content success!')
+    return redirect(url_for('pdf'))
 if __name__ == '__main__':
+    import sys
+
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
 
 
 
