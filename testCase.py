@@ -9,7 +9,7 @@ import requests,unittest
 # print r.text
 class nothingRes(unittest.TestCase):
     def testGssLogTest(self):
-        url = "http://localhost:5000/mock/a/b"
+        url = "http://localhost:5000/a/b"
         data = "method=testmethodasdfasd"
         result = "nothing matched"
         realResult = requests.post(url=url, data=data).text

@@ -20,7 +20,7 @@ app.url_map.converters['regex'] = RegexConverter
 
 
 # @app.route('/view/<regex("[a-zA-Z0-9]+"):uuid>/')
-@app.route('/mock/<regex(".*"):apiUri>',methods=["POST","GET"])
+@app.route('/<regex(".*"):apiUri>',methods=["POST","GET"])
 # def mock(apiUri):
 #     print apiUri
 #     return 'Hello World !'
