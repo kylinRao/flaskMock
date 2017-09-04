@@ -7,6 +7,7 @@
 
 import os
 import sqlite3
+import json
 from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash
 
@@ -117,6 +118,18 @@ def commentDelete(post_id):
     g.db.commit()
     flash('delete content success!')
     return redirect(url_for('pdf'))
+@app.route('/add_comment_json',methods=['POST'])
+def add_comment_json():
+    print request.form
+    g.db.execute('insert into comments ( "comment" ) values ( "{postcomment}" )'.format(postcomment=request.form['commentAdd']))
+    g.db.commit()
+    cur = g.db.execute('select comment,id from comments ORDER by id desc limit 1')
+    data = [dict(comment=row[0],id =row[1]) for row in cur.fetchall()]
+    print data
+
+    return json.dumps(data)
+
+
 if __name__ == '__main__':
     import sys
 
