@@ -1,4 +1,10 @@
 #coding:utf-8
+
+# curl -O https://pypi.python.org/packages/source/p/pip/pip-1.2.1.tar.gz
+# tar xvfz pip-1.2.1.tar.gz
+# cd pip-1.2.1
+# python setup.py install
+
 import os
 import sqlite3
 from flask import Flask, request, session, g, redirect, url_for, abort, \
