@@ -10,6 +10,7 @@ import sqlite3
 import json
 from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.config.from_object("appConfig.DevelopmentConfig")
@@ -109,7 +110,10 @@ def pdf():
     cur = g.db.execute('select comment,id from comments  ORDER by id DESC ')
     entries = [dict(comment=row[0],id =row[1]) for row in cur.fetchall()]
     print entries
-    return render_template('pdf.html',entries=entries)
+    filesList = []
+    for file in os.listdir("static/pdf"):
+        filesList.append({"path":"static/pdf/"+file,"fileName":file})
+    return render_template('pdf.html',entries=entries,filesList=filesList)
 
 @app.route('/commentDelete/<post_id>/',methods=['GET', 'POST'])
 def commentDelete(post_id):
@@ -128,7 +132,15 @@ def add_comment_json():
     print data
 
     return json.dumps(data)
-
+@app.route('/upload', methods=['POST', 'GET'])
+def upload():
+    if request.method == 'POST':
+        f = request.files['file']
+        basepath = os.path.dirname(__file__)  # 当前文件所在路径
+        upload_path = os.path.join(basepath, 'static/pdf',secure_filename(f.filename))  #注意：没有的文件夹一定要先创建，不然会提示没有该路径
+        f.save(upload_path)
+        return redirect(url_for('upload'))
+    return render_template('upload.html')
 
 if __name__ == '__main__':
     import sys

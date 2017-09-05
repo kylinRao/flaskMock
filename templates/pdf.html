@@ -68,7 +68,9 @@
 
 
     <ul>
-        <li><a href="/static/pdf/java虚拟机.pdf" target="pdfContainer" onclick="showPdf(true)">java虚拟机_pdf</a></li>
+        {% for fileentry in filesList %}
+        <li><a href={{  fileentry.path }} target="pdfContainer" onclick="showPdf(true)">{{  fileentry.fileName }}</a></li>
+        {% endfor %}
     </ul>
     <div class="lightbox" id="lightbox"></div>
     <div id="pop" class="pop" style="display: none;">
