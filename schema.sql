@@ -14,3 +14,11 @@ create table comments (
   comment string not null
 
 );
+drop table if exists books;
+create table books (
+  id integer primary key autoincrement,
+  bookName string not null,
+  bookFileType string not null,
+  savedFile string not NULL
+
+);

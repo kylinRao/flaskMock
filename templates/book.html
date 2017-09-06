@@ -46,7 +46,7 @@
 
         </script>
         <script type="text/javascript">
-            function showPdf(isShow) {
+            function showPdf(isShow, bookid) {
                 var state = "";
                 if (isShow) {
                     state = "block";
@@ -57,6 +57,8 @@
                 pop.style.display = state;
                 var lightbox = document.getElementById("lightbox");
                 lightbox.style.display = state;
+
+
             }
             function close() {
                 showPdf(false);
@@ -69,7 +71,8 @@
 
     <ul>
         {% for fileentry in filesList %}
-        <li><a href={{  fileentry.path }} target="pdfContainer" onclick="showPdf(true)">{{  fileentry.fileName }}</a></li>
+            <li><a href={{ fileentry.path }} target="pdfContainer"
+                   onclick="showPdf(true,{{ fileentry.id }})">{{ fileentry.bookName }}</a></li>
         {% endfor %}
     </ul>
     <div class="lightbox" id="lightbox"></div>
@@ -92,37 +95,32 @@
                 height: 30px;
             ">
 
-            <a id="toggle">展开评论</a>
-            <div id="content" style="display: none;">
+            <a id="toggle">隐藏评论</a>
+            <div id="content">
                 <form id="commentForm" action="" method=post class=add-entry onsubmit="return false;">
                     <dl>
                         <dt>评论信息:
                             <textarea name=commentAdd rows=5 cols=40></textarea>
+                         <input type="button" id="addComment" value="share" onclick="addComment">
+
 
                     </dl>
                 </form>
 
-                <input type="button" id="addComment" value="share" onclick="addComment">
 
-            <div id="commentsContent">
-                        {% for entry in entries %}
-                            {#                                <div class="titleContent">#}
-                            {#                                      <h2><a  href="{{ url_for('commentsDetail',post_id=entry.id) }}" style="text-align: center">{{ entry.title }}</a></h2>#}
-                            {#                            </div>#}
 
-                            {##}
-                            <div style="float: left" class="delete">
-                                <a href="{{ url_for('commentDelete',post_id=entry.id) }} ">delete</a>
-                            </div>
-                            <div style="float: none" class="commentsDetail"><p>{{ entry.comment|safe }} </p></div>
-                            {#                      <div style="float: left" class='delete'>#}
-                            {#                                  <a  href="{{ url_for('commentDelete',post_id=entry.id) }} ">delete</a>#}
-                            {#                      </div>#}
-                            {##}
-                            {#                          </ol>#}
-                            {#                             </div>#}
-                        {% endfor %}
-            </div>
+                <div id="commentsContent">
+                    {#                评论信息展示#}
+                    {% for entry in entries %}
+                        <div style="float: left" class="commentsDetail"><a
+                                style="color: black">{{ entry.comment|safe }} </a>
+                        </div>
+                        <div style="float: none" class="delete">
+                            <a href="{{ url_for('commentDelete',post_id=entry.id) }} ">delete</a>
+                        </div>
+
+                    {% endfor %}
+                </div>
             </div>
         </div>
 
@@ -132,55 +130,59 @@
 
     <script>
 
-String.prototype.format = function () {
-    var args = arguments;
-    var reg = /\{(\d+)\}/g;
-    return this.replace(reg, function (g0, g1) {
-        return args[+g1];
-    });
-};
+        String.prototype.format = function () {
+            var args = arguments;
+            var reg = /\{(\d+)\}/g;
+            return this.replace(reg, function (g0, g1) {
+                return args[+g1];
+            });
+        };
 
 
         $('#addComment').click(function () {
 
             var url = "/add_comment_json";
-            $.ajax({
-                url: url,
-                type: 'post',
-                dateType: 'json',
-                data: $("#commentForm").serialize(),
-                success: function (data) {
-                    console.log(data);
-                    console.log(eval(data));
-                    //刷新评论区
-                    var entry = {};
+            console.log("message:" + $("textarea").val());
+
+            if ("" == $("textarea").val()) {
+                alert("评论信息不能为空！");
+            }
+            else {
+
+                $.ajax({
+                    url: url,
+                    type: 'post',
+                    dateType: 'json',
+                    data: $("#commentForm").serialize(),
+                    success: function (data) {
+                        console.log(data);
+                        console.log(eval(data));
+                        //刷新评论区
+                        var entry = {};
 
 
-                    eval(data).forEach(function(entry,index) {
-                        console.log(entry);
+                        eval(data).forEach(function (entry, index) {
+                            console.log(entry);
 
-                        var appendcontent = '<div style="float: left" class="delete">' +
-                            '<a href="/commentDelete/{0}">delete</a>'.format(entry.id) +
-                                '<div style="float: none" class="commentsDetail"><p>{0}</p></div>'.format(entry.comment);
-
-
-{#                        $("#content").append('<p>{0}</p> '.format(entry.comment));#}
-                        $("#commentsContent").prepend(appendcontent);
-
-                    });
+                            var appendcontent =
+                                ' <div style="float: left" class="commentsDetail"><astyle="color: black">{0}</a></div>'.format(entry.comment)
+                                + '<div style="float: none" class="delete">' +
+                                '<a href="/commentDelete/{0}">delete</a>'.format(entry.id);
 
 
+                            {#                        $("#content").append('<p>{0}</p> '.format(entry.comment));#}
+                            $("#commentsContent").prepend(appendcontent);
+
+                        });
 
 
+                    },
+                    error: function () {
+                        alert("error!");
+                    }
 
-
-
-                },
-                error: function () {
-                    alert("error!");
-                }
-
-            });
+                });
+            }
 
         });
 

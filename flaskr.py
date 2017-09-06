@@ -8,6 +8,10 @@
 import os
 import sqlite3
 import json
+import base64
+from referLib.HashFun import *
+from unicodedata import normalize
+
 from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash
 from werkzeug.utils import secure_filename
@@ -60,7 +64,7 @@ def add_comment():
     g.db.execute('insert into comments ( "comment" ) values ( "{postcomment}" )'.format(postcomment=request.form['commentAdd']))
     g.db.commit()
     flash('New comment added!!')
-    return redirect(url_for('pdf'))
+    return redirect(url_for('book'))
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error = None
@@ -105,15 +109,18 @@ def showPdf():
 @app.route('/showPdf2',methods=['GET', 'POST'])
 def showPdf2():
     return render_template('showPdf2.html')
-@app.route('/pdf',methods=['GET', 'POST'])
-def pdf():
+@app.route('/book',methods=['GET', 'POST'])
+def book():
     cur = g.db.execute('select comment,id from comments  ORDER by id DESC ')
     entries = [dict(comment=row[0],id =row[1]) for row in cur.fetchall()]
     print entries
     filesList = []
-    for file in os.listdir("static/pdf"):
-        filesList.append({"path":"static/pdf/"+file,"fileName":file})
-    return render_template('pdf.html',entries=entries,filesList=filesList)
+    # for file in os.listdir("static/pdf"):
+    #     filesList.append({"path":"static/pdf/"+file,"fileName":file})
+    cur = g.db.execute('select savedFile,bookName,bookFileType,id from books  ORDER by id DESC ')
+    filesList = [dict(path=app.config["PDFPATH"]+row[0],bookName=row[1]+"."+row[2],id =row[3]) for row in cur.fetchall()]
+    print filesList
+    return render_template('book.html', entries=entries, filesList=filesList)
 
 @app.route('/commentDelete/<post_id>/',methods=['GET', 'POST'])
 def commentDelete(post_id):
@@ -121,7 +128,7 @@ def commentDelete(post_id):
     g.db.execute('delete from comments where id= {post_id}'.format(post_id = post_id))
     g.db.commit()
     flash('delete content success!')
-    return redirect(url_for('pdf'))
+    return redirect(url_for('book'))
 @app.route('/add_comment_json',methods=['POST'])
 def add_comment_json():
     print request.form
@@ -136,9 +143,16 @@ def add_comment_json():
 def upload():
     if request.method == 'POST':
         f = request.files['file']
+        print f.filename
+        bookName, bookFileType = f.filename.split(".")
+        base64FileName = hashForString("md5",bookName) + "." + bookFileType
         basepath = os.path.dirname(__file__)  # 当前文件所在路径
-        upload_path = os.path.join(basepath, 'static/pdf',secure_filename(f.filename))  #注意：没有的文件夹一定要先创建，不然会提示没有该路径
+        upload_path = os.path.join(basepath, app.config["PDFPATH"],secure_filename(base64FileName))  #注意：没有的文件夹一定要先创建，不然会提示没有该路径
+
         f.save(upload_path)
+
+        g.db.execute('insert into books (bookName,bookFileType,savedFile) VALUES ("{bookName}","{bookFileType}","{savedFile}")'.format(bookName=bookName,bookFileType=bookFileType,savedFile=base64FileName))
+        g.db.commit()
         return redirect(url_for('upload'))
     return render_template('upload.html')
 

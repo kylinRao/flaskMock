@@ -3,12 +3,12 @@
 <head>
     <meta http-equiv="content-type" content="txt/html; charset=utf-8"/>
 </head>
-<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/style.css') }}">
 <div class=page>
 
     <div class=metanav>
         <div class="left-div"><a href="{{ url_for("show_entries") }}">Home</a></div>
-        <div class="left-div"><a href="{{ url_for("pdf") }}">pdf</a></div>
+        <div class="left-div"><a href="{{ url_for("book") }}">book</a></div>
         <div class="left-div"><a href="{{ url_for("upload") }}">upload</a></div>
         <div class="right-div">
             {% if not session.logged_in %}

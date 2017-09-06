@@ -9,6 +9,7 @@ class Config(object):
     SECRET_KEY = "alsdjfljaldlfalsdjlfjaldsklfjlajsdlf"
     DATABASE = os.path.join(parpath,"mock.db")
     static_url_path = ''
+    PDFPATH = "static/pdf/"
 
 class ProductionConfig(Config):
     DATABASE_URI = 'mysql://user@localhost/foo'
