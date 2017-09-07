@@ -90,7 +90,7 @@ def login():
         else:
             session['logged_in'] = True
             flash('You were logged in')
-            return redirect(url_for('show_entries'))
+            return redirect(url_for('upload'))
     return render_template('login.html', error=error)
 
 
@@ -223,7 +223,7 @@ def upload():
             'insert into books (bookName,bookFileType,savedFile) VALUES ("{bookName}","{bookFileType}","{savedFile}")'.format(
                 bookName=bookName, bookFileType=bookFileType, savedFile=base64FileName))
         g.db.commit()
-        return redirect(url_for('upload'))
+
     return render_template('upload.html')
 
 
