@@ -14,6 +14,9 @@ class Config(object):
     NONEEDLOGINURL = [
         "/login",
         "/book",
+        "/add_comment_json",
+        "/delete_comment_json",
+        "/static",
 
     ]
 
