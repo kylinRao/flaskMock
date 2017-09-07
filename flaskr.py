@@ -111,7 +111,7 @@ def delete(post_id):
     g.db.commit()
     flash('delete content success!')
 
-    return redirect(url_for('upload'))
+    return redirect(url_for('upload00'))
 
 
 @app.route('/contentDetail/<post_id>/', methods=['GET', 'POST'])
