@@ -11,6 +11,11 @@ class Config(object):
     static_url_path = ''
     PDFPATH = "pdf"
     STATICPATH = "static"
+    NONEEDLOGINURL = [
+        "/login",
+        "/book",
+
+    ]
 
 class ProductionConfig(Config):
     DATABASE_URI = 'mysql://user@localhost/foo'

@@ -26,7 +26,17 @@ def connect_db():
 
 @app.before_request
 def before_request():
+    print request.full_path
     g.db = connect_db()
+    for url in app.config["NONEEDLOGINURL"]:
+        if request.full_path.startswith(url):
+            return
+    else:
+        if not session.get('logged_in'):
+            return redirect(url_for('login'))
+
+
+
 
 
 @app.teardown_request
