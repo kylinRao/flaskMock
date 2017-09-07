@@ -110,6 +110,7 @@ def delete(post_id):
     g.db.execute('delete from entries where id= {post_id}'.format(post_id=post_id))
     g.db.commit()
     flash('delete content success!')
+
     return redirect(url_for('upload'))
 
 
