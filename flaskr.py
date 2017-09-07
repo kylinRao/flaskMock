@@ -28,9 +28,13 @@ def connect_db():
 def before_request():
     print request.full_path
     g.db = connect_db()
+    if request.full_path == "/?":
+        return redirect(url_for('book'))
+
     for url in app.config["NONEEDLOGINURL"]:
         if request.full_path.startswith(url):
             return
+
     else:
         if not session.get('logged_in'):
             return redirect(url_for('login'))
@@ -60,7 +64,7 @@ def init_db():
         db.commit()
 
 
-@app.route('/')
+@app.route('/xxx')
 def show_entries():
     cur = g.db.execute('select title, text ,id from entries order by id desc')
     entries = [dict(title=row[0], text=row[1], id=row[2]) for row in cur.fetchall()]
@@ -144,7 +148,7 @@ def showPdf():
 def showPdf2():
     return render_template('showPdf2.html')
 
-
+@app.route('/')
 @app.route('/book', methods=['GET', 'POST'])
 def book():
     cur = g.db.execute('select comment,id from comments  ORDER by id DESC ')
