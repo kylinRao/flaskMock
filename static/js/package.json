@@ -11,12 +11,17 @@
     "url": "git+https://pipwerks@github.com/pipwerks/PDFObject.git"
   },
   "keywords": [
-    "pdf", "pdfobject"
+    "pdf",
+    "pdfobject"
   ],
   "author": "Philip Hutchison <philip@pipwerks.com> (http://pipwerks.com)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/pipwerks/PDFObject/issues"
   },
-  "homepage": "https://github.com/pipwerks/PDFObject#readme"
+  "homepage": "https://github.com/pipwerks/PDFObject#readme",
+  "devDependencies": {
+    "jquery": "^3.2.1",
+    "pdfjs-dist": "file:pdfjs/browserify/pdfjs-dist"
+  }
 }

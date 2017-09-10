@@ -6,37 +6,17 @@
     <head>
         <meta charset="UTF-8">
         <title>{{ bookentry.bookName }}</title>
+        <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/style.css') }}">
         <style type="text/css">
-            .lightbox {
-                position: fixed;
-                top: 0px;
-                left: 0px;
-                height: 100%;
-                width: 100%;
-                z-index: 7;
-                opacity: 1;
-                display: block;
-                background-color: rgb(138, 138, 138);
-                display: none;
-            }
-
-            .pop, iframe {
-                position: absolute;
-                left: 0%;
-                top: 0;
-                width: 893px;
-                height: 100%;
-                margin-left: 0px;
-                z-index: 9;
-            }
 
             body {
                 background-color: rgb(138, 138, 138);
             }
         </style>
         <script src="/static/js/pdf.js" type="text/javascript"></script>
+
         {#    测试代码#}
-        <script src="/static/js/jquery-2.0.0.min.js"></script>
+        <script src="/static/js/jquery-3.2.0.min.js"></script>
 
 
         <script type="text/javascript">
@@ -64,9 +44,9 @@
 
 
             }
-            function close() {
-                showPdf(false);
-            }
+            {#            function close() {#}
+            {#                showPdf(false);#}
+            {#            }#}
         </script>
 
     </head>
@@ -75,57 +55,71 @@
 
 <div class="lightbox" id="lightbox"></div>
 <div id="pop" class="pop" style="display: block;">
-    <a href="javascript:close()" style="
-            position: absolute;
-            right: -90px;
-            display: inline-block;
-            width: 80px;
-            height: 30px;
-        " id="close">关闭</a>
-    <iframe src="{{ bookentry.path }}" frameborder="0" id="{{ bookentry.id }}" class="pdfContainer"
-            name="pdfContainer"></iframe>
+    {#    <a href="javascript:close()" style="#}
+    {#            position: absolute;#}
+    {#            right: -90px;#}
+    {#            display: inline-block;#}
+    {#            width: 80px;#}
+    {#            height: 30px;#}
+    {#        " id="close">关闭</a>#}
+    {#    <iframe src="{{ bookentry.path }}" frameborder="0" id="{{ bookentry.id }}" class="pdfContainer"#}
+    {#            name="pdfContainer"></iframe>#}
+
+
+    <div class="bookId" id="{{ bookentry.id }}" style="float: left;border: 2em;">
+        <div>
+            {#        <a id="theCanvasBookPath" style="display: none;">{{ bookentry.path }}</a>#}
+            <canvas id="theCanvas" class="{{ bookentry.path }} " style="">xiedianshenem</canvas>
+        </div>
+        <div style="position:relative;margin: 1em auto;width: 208px;">
+
+            <button id="prePage">上一页</button>
+            <a></a><input style="width: 2em" id="currentPage" value="1">
+            <a style="font: 'Microsoft YaHei';color: #000;">/</a><input style="width: 2em" id="totalPage" disabled="true" value="">
+            <button id="nextPage">下一页</button>
+        </div>
+    </div>
+
 
     <div style="
-                position: absolute;
-                right:-300px;
-                top: 40px;
-                display: inline-block;
-                width: 280px;
-                height: 30px;
+            {#            float: left;#}
+            top: 40px;
+            display: -webkit-inline-box;
+            width: 280px;
+            height: 30px;
+            left: 10em;
+
+
             ">
 
         <a id="toggle">隐藏评论</a>
         <div id="content">
             <form id="commentForm" action="" method=post class=add-entry onsubmit="return false;">
                 <dl>
-                    <dt>评论信息:
+                    <dt>辣鸡评论:
                         <textarea name=commentAdd rows=5 cols=40></textarea>
                         <input type="button" id="addComment" value="share" onclick="addComment">
 
 
                 </dl>
             </form>
-
-
             <div id="commentsContent">
                 {#                评论信息展示#}
                 {% for commententry in commententries %}
-                    <div style="float: left" class="{{ commententry.commentid }}">
-                        <a style="color: black">{{ commententry.comment|safe }} </a>
+                    <div class="oneCommet">
+                        <div class="{{ commententry.commentid }}" style="float: left">
+                            <a style="color: black">{{ commententry.comment|safe }} </a>
+                        </div>
+                        <div style="float: none" class="{{ commententry.commentid }}">
+                            <button class="deleteComment" id="{{ commententry.commentid }}">delete</button>
+                        </div>
                     </div>
-                    <div style="float: none" class="{{ commententry.commentid }}">
-                        <button class="deleteComment" id="{{ commententry.commentid }}" >delete</button>
-                    </div>
-
                 {% endfor %}
             </div>
         </div>
     </div>
-
-
 </div>
 <script>
-
     String.prototype.format = function () {
         var args = arguments;
         var reg = /\{(\d+)\}/g;
@@ -133,18 +127,13 @@
             return args[+g1];
         });
     };
-
-
     $('#addComment').click(function () {
-
-        var url = "/add_comment_json/" + $("iframe").attr("id");
+        var url = "/add_comment_json/" + $(".bookId").attr("id") + "/" + $("#currentPage").val();
         console.log("url:" + url);
-
         if ("" == $("textarea").val()) {
             alert("评论信息不能为空！");
         }
         else {
-
             $.ajax({
                 url: url,
                 type: 'post',
@@ -155,82 +144,52 @@
                     console.log(eval(data));
                     //刷新评论区
                     var entry = {};
-
-
                     eval(data).forEach(function (entry, index) {
                         console.log(entry);
+                        {#                        var appendcontent =#}
+                        {#                            ' <div style="float: left" class="{0}"><a style="color: black">{1} </a></div>'.format(entry.id, entry.comment)#}
+                        {#                            + '<div style="float: none" class="{0}">'.format(entry.id) +#}
+                        {#                            '<button class="deleteComment" id="{0}"  >delete</button>'.format(entry.id)#}
+                        {#                            + '</div>';#}
 
-                        var appendcontent =
-                            ' <div style="float: left" class="{0}"><a style="color: black">{1} </a></div>'.format(entry.id,entry.comment)
-                            + '<div style="float: none" class="{0}">'.format(entry.id) +
-                            '<button class="deleteComment" id="{0}"  >delete</button>'.format(entry.id)
-                        +'</div>';
-
-
-                        {#                        $("#content").append('<p>{0}</p> '.format(entry.comment));#}
+                        var appendcontent = '<div class="oneCommet">' +
+                            '<div class="{0}" style="float: left" >'.format(entry.id) +
+                            '<a style="color: black">{0} </a>'.format(entry.comment) +
+                            '</div>' +
+                            '<div  style="float: none" class="{0}">'.format(entry.id) +
+                            '<button class="deleteComment" id = "{0}">delete</button>'.format(entry.id) +
+                            '</div></div>';
                         $("#commentsContent").prepend(appendcontent);
-
                     });
-
-
                 },
                 error: function () {
                     alert("error!");
                 }
-
             });
         }
-
     });
-
     {#        删除一条评论信息#}
-    $(document).on('click',".deleteComment",function () {
+    $(document).on('click', ".deleteComment", function () {
+        console.log("deleteComment");
         var commentid = $(this).attr("id");
-
         var url = "/delete_comment_json/" + commentid;
         console.log("url:" + url);
-
-
         $.ajax({
             url: url,
             type: 'post',
             dateType: 'json',
-
             success: function (data) {
                 console.log(data);
-
                 //刷新评论区
                 var entry = {};
                 $("." + commentid).remove("div");
-
-                {##}
-                {#                        eval(data).forEach(function (entry, index) {#}
-                {#                            console.log(entry);#}
-                {##}
-                {#                            var appendcontent =#}
-                {#                                ' <div style="float: left" class="commentsDetail"><astyle="color: black">{0}</a></div>'.format(entry.comment)#}
-                {#                                + '<div style="float: none" class="delete">' +#}
-                {#                                '<a href="/commentDelete/{0}">delete</a>'.format(entry.id);#}
-                {##}
-                {##}
-                {#                        $("#content").append('<p>{0}</p> '.format(entry.comment));#}
-                {#                            $("#commentsContent").prepend(appendcontent);#}
-                {##}
-                {#                        });#}
-
-
             },
             error: function () {
                 alert("error!");
             }
-
         });
-
-
     });
-
-
 </script>
-
+<script src="/static/js/pdfjsControl.js" type="text/javascript"></script>
 </body>
 </html>

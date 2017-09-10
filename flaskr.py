@@ -28,16 +28,16 @@ def connect_db():
 def before_request():
     print request.full_path
     g.db = connect_db()
-    if request.full_path == "/?":
-        return redirect(url_for('book'))
-
-    for url in app.config["NONEEDLOGINURL"]:
-        if request.full_path.startswith(url):
-            return
-
-    else:
-        if not session.get('logged_in'):
-            return redirect(url_for('login'))
+    # if request.full_path == "/?":
+    #     return redirect(url_for('book'))
+    #
+    # for url in app.config["NONEEDLOGINURL"]:
+    #     if request.full_path.startswith(url):
+    #         return
+    #
+    # else:
+    #     if not session.get('logged_in'):
+    #         return redirect(url_for('login'))
 
 
 
@@ -164,16 +164,16 @@ def book():
     return render_template('book.html', entries=entries, filesList=filesList)
 
 
-@app.route('/bookDetail/<post_id>/', methods=['GET', 'POST'])
-def bookDetail(post_id):
+@app.route('/bookDetail/<post_bookid>/', methods=['GET', 'POST'])
+def bookDetail(post_bookid):
     cur = g.db.execute(
         'select b.savedFile,b.bookName,b.bookFileType,b.id from books b WHERE b.id = "{id}" '.format(
-            id=post_id))
+            id=post_bookid))
     bookentry = [dict(path=os.path.join("/",app.config["STATICPATH"] ,app.config["PDFPATH"] , row[0]), bookName=row[1] + "." + row[2], id=row[3]) for row in
                  cur.fetchall()][0]
     print bookentry
     cur = g.db.execute(
-        'select c.id,c.comment from comments c WHERE  c.bookid = "{bookid}" ORDER BY id DESC '.format(bookid=post_id) )
+        'select c.id,c.comment from comments c WHERE  c.bookid = "{bookid}" and pageid = "1" ORDER BY id DESC '.format(bookid=post_bookid) )
     commententries = [dict(commentid=row[0], comment=row[1]) for row in
                       cur.fetchall()]
     print commententries
@@ -181,20 +181,28 @@ def bookDetail(post_id):
     return render_template('bookDetail.html', bookentry=bookentry, commententries=commententries)
 
 
-@app.route('/commentDelete/<post_id>/', methods=['GET', 'POST'])
-def commentDelete(post_id):
-    print post_id
-    g.db.execute('delete from comments where id= {post_id}'.format(post_id=post_id))
+@app.route('/commentDelete/<post_bookid>', methods=['GET', 'POST'])
+def commentDelete(post_bookid):
+    print post_bookid
+    g.db.execute('delete from comments where id= {id}'.format(d=post_bookid))
     g.db.commit()
     flash('delete content success!')
     return redirect(url_for('book'))
+@app.route('/getBookPageComments/<post_bookid>/<post_pageid>', methods=['GET', 'POST'])
+def getBookPageComments(post_bookid,post_pageid):
+    cur = g.db.execute('select comment,id from comments where bookId = {bookid} and pageid = {pageid} ORDER by id desc'.format(bookid=post_bookid,pageid=post_pageid));
+    data = [dict(comment=row[0], id=row[1]) for row in cur.fetchall()]
+    print data
+
+    return json.dumps(data)
 
 
-@app.route('/add_comment_json/<post_id>', methods=['POST'])
-def add_comment_json(post_id):
+@app.route('/add_comment_json/<post_bookid>/<post_pageid>', methods=['POST'])
+def add_comment_json(post_bookid,post_pageid):
     print request.form
+    print post_bookid,post_pageid
     g.db.execute(
-        'insert into comments ( bookid,comment) values ( "{bookid}","{postcomment}" )'.format(bookid=post_id,postcomment=request.form['commentAdd']))
+        'insert into comments ( bookid,comment,pageid) values ( "{bookid}","{postcomment}","{pageid}" )'.format(bookid=post_bookid, pageid=post_pageid,postcomment=request.form['commentAdd']))
     g.db.commit()
     cur = g.db.execute('select comment,id from comments ORDER by id desc limit 1')
     data = [dict(comment=row[0], id=row[1]) for row in cur.fetchall()]

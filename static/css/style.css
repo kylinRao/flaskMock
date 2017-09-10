@@ -52,3 +52,17 @@ h2              { font-size: 1.2em; }
         border: 10px ;
 
     }
+    .pop{
+        margin: 1em auto;
+        width: 1000px;
+
+                top: 0px;
+                left: 0px;
+                height: 100%;
+
+                z-index: 7;
+                opacity: 1;
+                display: block;
+                background-color: rgb(138, 138, 138);
+
+    }
