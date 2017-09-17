@@ -64,6 +64,7 @@ def init_db():
         db.commit()
 
 
+
 @app.route('/xxx')
 def show_entries():
     cur = g.db.execute('select title, text ,id from entries order by id desc')

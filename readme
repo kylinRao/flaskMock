@@ -1,0 +1,6 @@
+该服务器程序提供的是源码，拿到代码后
+需要安装：
+在任意路径下：pip install flask
+在/static/js/pdfjs/browerify/下执行
+npm install pdfjs-dist --save-dev
+npm install jquery --save-dev
